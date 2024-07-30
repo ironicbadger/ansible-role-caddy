@@ -1,0 +1,31 @@
+{{ ansible_managed }}
+
+{% if caddy_tls_providers is defined %}
+{% for item in caddy_tls_providers %}
+({{ item.provider }}) {
+    tls {
+        {{ item.challenge_type }} {{ item.provider }} {{ item.provider_api_token }}
+    }
+}
+{% endif %}
+{% endfor %}
+{% if caddy_endpoints is defined %}
+{% for endpoint in caddy_endpoints %}
+#{{ endpoint.friendly_name }}
+{% if endpoint.tls_insecure %}
+{{ endpoint.fqdn }} {
+    reverse_proxy {{ endpoint.upstream }} {
+        transport http {
+            tls_insecure_skip_verify
+        }
+    }
+    import {{ endpoint.tls_provider }}
+}
+{% else %}
+{{ endpoint.fqdn }} {
+    reverse_proxy {{ endpoint.upstream }}
+    import {{ endpoint.tls_provider }}
+}
+{% endif %}
+{% endfor %}
+{% endif %}

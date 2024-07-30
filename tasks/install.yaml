@@ -1,0 +1,15 @@
+---
+
+- name: download latest release
+  get_url:
+    url: "{{ caddy_amd64_linux_binary_url }}"
+    dest: /usr/local/bin/caddy
+    owner: root
+    group: root
+    mode: a+x
+  ignore_errors: true
+
+- name: Add the caddy user
+  ansible.builtin.user:
+    name: caddy
+    group: caddy
