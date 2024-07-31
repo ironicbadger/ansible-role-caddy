@@ -7,8 +7,8 @@
         {{ item.challenge_type }} {{ item.provider }} {{ item.provider_api_token }}
     }
 }
-{% endif %}
 {% endfor %}
+{% endif %}
 {% if caddy_endpoints is defined %}
 {% for endpoint in caddy_endpoints %}
 #{{ endpoint.friendly_name }}
