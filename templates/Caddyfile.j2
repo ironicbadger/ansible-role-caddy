@@ -1,5 +1,4 @@
-{{ ansible_managed }}
-
+## {{ ansible_managed }}
 {% if caddy_tls_providers is defined %}
 {% for item in caddy_tls_providers %}
 ({{ item.provider }}) {
@@ -11,7 +10,8 @@
 {% endif %}
 {% if caddy_endpoints is defined %}
 {% for endpoint in caddy_endpoints %}
-#{{ endpoint.friendly_name }}
+
+# {{ endpoint.friendly_name }}
 {% if endpoint.tls_insecure %}
 {{ endpoint.fqdn }} {
     reverse_proxy {{ endpoint.upstream }} {
