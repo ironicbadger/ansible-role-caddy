@@ -1,5 +1,3 @@
-wip
-
 ---
 - name: ensure destination for caddyfile file exists
   file:
