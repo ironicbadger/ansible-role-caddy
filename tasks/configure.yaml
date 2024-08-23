@@ -8,3 +8,4 @@
   template:
     src: ../templates/Caddyfile.j2
     dest: "{{ caddyfile_path }}/Caddyfile"
+  notify: restart caddy

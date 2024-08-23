@@ -14,7 +14,7 @@
 - name: install caddy
   include_tasks:
     file: install.yaml
-  when: caddy_installed == false
+  #when: caddy_installed == false
 
 - name: configure caddy
   include_tasks:

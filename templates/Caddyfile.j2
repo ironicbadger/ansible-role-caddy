@@ -4,6 +4,9 @@
 ({{ item.provider }}) {
     tls {
         {{ item.challenge_type }} {{ item.provider }} {{ item.provider_api_token }}
+{% if item.resolver is defined %}
+        resolvers {{ item.resolver_ip }}
+{% endif %}
     }
 }
 {% endfor %}
