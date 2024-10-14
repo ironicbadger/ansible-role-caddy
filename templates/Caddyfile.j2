@@ -14,7 +14,35 @@
 
 {% if caddy_endpoints is defined %}
 {% for endpoint in caddy_endpoints %}
+
 # {{ endpoint.friendly_name }}
+{% if endpoint.fqdn.startswith("*") %}
+{{ endpoint.fqdn }} {
+    import {{ endpoint.tls_provider }}
+
+{% if endpoint.wildcard_endpoints is defined %}
+{% for wildcard_endpoint in endpoint.wildcard_endpoints %}
+    @{{ ( wildcard_endpoint.fqdn | split(".") )[0] }} host {{ wildcard_endpoint.fqdn }}
+    handle @{{ ( wildcard_endpoint.fqdn | split(".") )[0] }} {
+{% if wildcard_endpoint.tls_insecure %}
+        reverse_proxy {{ wildcard_endpoint.upstream }} {
+            transport http {
+                tls_insecure_skip_verify
+            }
+        }
+    }
+{% else %}
+        reverse_proxy {{ wildcard_endpoint.upstream }}
+    }
+{% endif %}
+{% endfor %}
+{% endif %}
+    # Fallback for otherwise unhandled domains
+    handle {
+        abort
+    }
+}
+{% else %}
 {% if endpoint.tls_insecure %}
 {{ endpoint.fqdn }} {
     reverse_proxy {{ endpoint.upstream }} {
@@ -29,6 +57,7 @@
     reverse_proxy {{ endpoint.upstream }}
     import {{ endpoint.tls_provider }}
 }
+{% endif %}
 {% endif %}
 {% endfor %}
 {% endif %}
