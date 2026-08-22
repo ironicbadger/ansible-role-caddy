@@ -22,6 +22,7 @@
       --with github.com/caddy-dns/cloudflare
       --with github.com/caddyserver/transform-encoder
       --with github.com/mholt/caddy-ratelimit
+      --with github.com/anujc4/caddy-geoblock
     creates: "{{ caddy_binary_path }}"
   environment:
     PATH: "{{ ansible_env.PATH }}:/usr/local/go/bin:{{ lookup('env', 'HOME') }}/go/bin"

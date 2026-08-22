@@ -1,5 +1,21 @@
 ## {{ ansible_managed }}
 
+{% macro render_geoblock(config) -%}
+    geoblock {
+{% for option in ['db_path', 'allow_countries', 'allow_continents', 'allow_subdivisions', 'allow_cities', 'allow_asn', 'allow_asn_org', 'deny_countries', 'deny_continents', 'deny_subdivisions', 'deny_cities', 'deny_asn', 'deny_asn_org', 'allow_ip_ranges', 'deny_ip_ranges', 'blocked_status', 'blocked_message'] %}
+{% if config[option] is defined %}
+{% if option == 'db_path' and config[option] is not string %}
+{% for value in config[option] %}        {{ option }} {{ value }}
+{% endfor %}
+{% elif config[option] is string %}        {{ option }} {{ config[option] }}
+{% else %}
+    {{ option }} {{ config[option] | join(' ') }}
+{% endif %}
+{% endif %}
+{% endfor %}
+    }
+{%- endmacro %}
+
 {
     log {
         output file /var/log/caddy/caddy.log {
@@ -32,6 +48,9 @@
 {% if endpoint.fqdn.startswith("*") %}
 {{ endpoint.fqdn }} {
     import {{ endpoint.tls_provider }}
+{% if caddy_geoblock is defined %}
+{{ render_geoblock(caddy_geoblock) }}
+{% endif %}
 
 {% if endpoint.wildcard_endpoints is defined %}
 {% for wildcard_endpoint in endpoint.wildcard_endpoints %}
@@ -66,6 +85,9 @@
 {% else %}
 {% if endpoint.tls_insecure | default(false) %}
 {{ endpoint.fqdn }} {
+{% if caddy_geoblock is defined %}
+{{ render_geoblock(caddy_geoblock) }}
+{% endif %}
     reverse_proxy {{ endpoint.upstream }} {
         transport http {
             tls_insecure_skip_verify
@@ -83,6 +105,9 @@
 }
 {% else %}
 {{ endpoint.fqdn }} {
+{% if caddy_geoblock is defined %}
+{{ render_geoblock(caddy_geoblock) }}
+{% endif %}
     reverse_proxy {{ endpoint.upstream }}
     log {
         format transform "{common_log}"

@@ -30,3 +30,21 @@ caddy_endpoints:
         tls_insecure: false
 ```
 
+Geo-blocking
+```yaml
+caddy_geoblock:
+  db_path:
+    - /var/lib/caddy/GeoLite2-Country.mmdb
+  allow_countries:
+    - US
+    - CA
+  deny_asn:
+    - 13335
+  blocked_status: 403
+  blocked_message: "Access denied"
+```
+
+The geoblock configuration is applied to every endpoint. Options that accept
+multiple values, such as `db_path`, are YAML lists and produce one directive
+per value.
+
