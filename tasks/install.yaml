@@ -6,6 +6,37 @@
     state: present
     update_cache: true
 
+- name: Install geoipupdate RPM directly from GitHub
+  ansible.builtin.dnf:
+    name: "https://github.com/maxmind/geoipupdate/releases/download/v{{ geoip_version }}/geoipupdate_{{ geoip_version }}_linux_arm64.rpm"
+    state: present
+    disable_gpg_check: true
+
+- name: Deploy GeoIP configuration file
+  ansible.builtin.copy:
+    dest: /etc/GeoIP.conf
+    owner: root
+    group: root
+    mode: '0640'
+    content: |
+      AccountID {{ maxmind_account_id }}
+      LicenseKey {{ maxmind_license_key }}
+      EditionIDs {{ maxmind_edition_ids }}
+
+- name: Run initial geoipupdate to download databases
+  ansible.builtin.command:
+    cmd: /usr/bin/geoipupdate
+  register: geoip_result
+  changed_when: "'Up to date' not in geoip_result.stdout"
+
+- name: Schedule weekly GeoIP database updates
+  ansible.builtin.cron:
+    name: "Weekly MaxMind GeoIP Update"
+    minute: "0"
+    hour: "3"
+    weekday: "1"
+    job: "/usr/bin/geoipupdate"
+
 - name: install xcaddy
   ansible.builtin.command:
     cmd: go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
